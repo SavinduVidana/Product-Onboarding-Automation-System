@@ -4,50 +4,82 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Product Onboarding</title>
   <style>
-    body { font-family: Arial; padding: 16px; max-width: 480px; margin: 0 auto; }
-    input, button { width: 100%; padding: 12px; margin: 10px 0; font-size: 16px; }
-    button { font-weight: 700; }
-    .msg { margin-top: 12px; white-space: pre-wrap; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+    button {
+      background: #16a34a; /* green */
+      color: #ffffff;       /* white text */
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .msg {
+      margin-top: 12px;
+      white-space: pre-wrap;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
   <h2>Product Onboarding (Pilot)</h2>
 
-  <input id="employee_code" placeholder="Employee code (e.g., E001)" />
   <input id="product_name" placeholder="Product name" />
 
   <label>Front image</label>
   <input id="front" type="file" accept="image/*" capture="environment" />
 
-  <label>Back image (barcode side)</label>
+  <label>Back image</label>
   <input id="back" type="file" accept="image/*" capture="environment" />
 
-  <button onclick="submitForm()">Submit</button>
+  <button id="submitBtn" onclick="submitForm()">Submit</button>
+
   <div class="msg" id="msg"></div>
 
   <script>
+    // Paste your deployed Apps Script Web App URL here:
     const WEB_APP_URL = "PASTE_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE";
 
     async function submitForm() {
       const msg = document.getElementById("msg");
-      msg.textContent = "Uploading...";
+      const btn = document.getElementById("submitBtn");
 
-      const employee_code = document.getElementById("employee_code").value.trim();
       const product_name = document.getElementById("product_name").value.trim();
       const front = document.getElementById("front").files[0];
       const back = document.getElementById("back").files[0];
 
-      if (!employee_code || !product_name || !front || !back) {
-        msg.textContent = "Fill employee code, product name, and select BOTH images.";
+      if (!product_name || !front || !back) {
+        msg.textContent = "Please enter product name and select BOTH images.";
         return;
       }
 
-      // Pilot: barcode is optional. We send nil if you don't have it yet.
-      // In Step 4 we’ll add real barcode detection (client-side live scan or OCR).
+      btn.disabled = true;
+      msg.textContent = "Uploading...";
+
+      // Barcode is optional for now (we’ll add scanning later)
       const barcode = "nil";
 
       const form = new FormData();
-      form.append("employee_code", employee_code);
       form.append("product_name", product_name);
       form.append("barcode", barcode);
       form.append("front", front);
@@ -59,8 +91,11 @@
         msg.textContent = JSON.stringify(data, null, 2);
       } catch (e) {
         msg.textContent = "Upload failed: " + e;
+      } finally {
+        btn.disabled = false;
       }
     }
   </script>
 </body>
 </html>
+
